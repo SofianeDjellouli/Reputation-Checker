@@ -2,6 +2,7 @@
 
 ## Stack
 * React
+* AllOrigins
 * Axios
 * Jquery
 * Bootstrap
@@ -14,4 +15,4 @@ https://codepen.io/sofianeD/full/gdVMja
 2. If he clicks on Load account it will load the webpage.
 3. The webpage appears in a div under the input box when the data is fetched.
 4. Works for any webpage (no CORS issues).
-5. He can POST data to ann imaginary API when clicking on "I confirm this is my account".
+5. He can POST data to an imaginary API when clicking on "I confirm this is my account".
