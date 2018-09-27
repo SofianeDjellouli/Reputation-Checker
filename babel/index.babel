@@ -1,0 +1,115 @@
+class ReputationChecker extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      input: "",
+      url: "",
+      fetchingData: false,
+      displayPage: false,
+      reputation: ""
+    }
+    this.loadAccount = this.loadAccount.bind(this)
+    this.postData = this.postData.bind(this)
+    // this.res = React.createRef();
+  }
+
+  handleChange = event => {
+    this.setState({ input: event.target.value })
+  }
+
+  loadAccount = event => {
+    event.preventDefault()
+    const url = this.state.input
+    this.setState({ url: this.state.input, input: "", fetchingData: true })
+    const that = this
+    $.getJSON(
+      "https://allorigins.me/get?url=" +
+        encodeURIComponent(url) +
+        "&callback=?",
+      function(data) {
+        that.setState({
+          response: data.contents,
+          displayPage: true,
+          fetchingData: false
+        })
+        // $(that.res).html(data.contents)
+      }
+    )
+    url.indexOf("airbnb.com.au/users/show/99824610") !== -1
+      ? this.setState({
+          reputation:
+            "Dee, AU, October 2016, 15 reviews, verified: government ID, selfie, email address, phone number, work email"
+        })
+      : url.indexOf("ebay.com.au/usr/twiz911") !== -1
+        ? this.setState({
+            reputation:
+              "twiz911 (203) 100% positive Feedback 45 Positive 0 Neutral 0 Negative "
+          })
+        : null
+  }
+
+  postData = event => {
+    event.preventDefault()
+    const url = this.state.url
+    const reputation = this.state.reputation
+    axios.post("https://imaginary.com/imaginary", { url, reputation })
+    // .then()
+    // .catch()
+  }
+
+  render() {
+    return (
+      <div className="container">
+        <h4 className="text-center my-4 display-4">Reputation checker</h4>
+        <div className="containter bg-info rounded mb-3">
+          <form className="form-inline d-flex justify-content-center py-4">
+            <label>
+              <h5>Get your reputation from a webpage:</h5>
+              <input
+                type="url"
+                name="url"
+                onChange={this.handleChange}
+                className="form-control mx-3"
+                placeholder="Some URL..."
+                value={this.state.input}
+              />
+            </label>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              onClick={e => this.loadAccount(e)}
+            >
+              Load account
+            </button>
+          </form>
+          {this.state.fetchingData ? (
+            <div className="text-center py-4">Fetching data...</div>
+          ) : this.state.displayPage ? (
+            <div className="d-flex flex-column justify-content-center">
+              {/*  <div  ref={(e)=>{this.res = e}}/>*/}
+              <div
+                dangerouslySetInnerHTML={{ __html: this.state.response }}
+                style={{
+                  width: "95%",
+                  height: 300,
+                  marginLeft: "2.5%",
+                  overflowY: "scroll",
+                  backgroundColor: "white"
+                }}
+              />
+              <div className="text-center py-4">{this.state.reputation}</div>
+              <button
+                className="btn btn-success my-4 mx-auto w-25"
+                onClick={e => this.postData(e)}
+              >
+                I confirm this is my account
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    )
+  }
+}
+
+ReactDOM.render(<ReputationChecker />, document.getElementById("app"))
