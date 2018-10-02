@@ -12,7 +12,6 @@ var _createClass = function () {function defineProperties(target, props) {for (v
 
 
 
-
     handleChange = function (event) {
       _this.setState({ input: event.target.value });
     };_this.
@@ -20,6 +19,11 @@ var _createClass = function () {function defineProperties(target, props) {for (v
     loadAccount = function (event) {
       event.preventDefault();
       var url = _this.state.input;
+      var selector = {
+        airbnb: "reviews",
+        ebay: "feedback_ratings",
+        stackoverflow: "user-card" };
+
       _this.setState({ url: _this.state.input, input: "", fetchingData: true });
       var that = _this;
       $.getJSON(
@@ -30,33 +34,36 @@ var _createClass = function () {function defineProperties(target, props) {for (v
         that.setState({
           response: data.contents,
           displayPage: true,
-          fetchingData: false });
+          fetchingData: false,
+          reputation: "" });
 
-        // $(that.res).html(data.contents)
+        var div = document.createElement("div");
+        div.innerHTML = data.contents;
+        var reputationWebsite = false;
+        for (var x in selector) {
+          if (url.includes(x)) {
+            reputationWebsite = true;
+            div = document.getElementById(selector[x]);
+          }
+        }
+        if (reputationWebsite) {
+          that.setState({ reputation: div.outerHTML });
+        } else {
+          that.setState({ reputation: "" });
+        }
       });
 
-      url.indexOf("airbnb.com.au/users/show/99824610") !== -1 ?
-      _this.setState({
-        reputation:
-        "Dee, AU, October 2016, 15 reviews, verified: government ID, selfie, email address, phone number, work email" }) :
-
-      url.indexOf("ebay.com.au/usr/twiz911") !== -1 ?
-      _this.setState({
-        reputation:
-        "twiz911 (203) 100% positive Feedback 45 Positive 0 Neutral 0 Negative " }) :
-
-      null;
     };_this.
 
     postData = function (event) {
       event.preventDefault();
       var url = _this.state.url;
       var reputation = _this.state.reputation;
-      axios.post("https://imaginary.com/imaginary", { url: url, reputation: reputation });
-      // .then()
+      axios.post("https://imaginary.com/imaginary/", { url: url, reputation: reputation });
+      //.then(res=>console.log(res))
       // .catch()
-    };_this.state = { input: "", url: "", fetchingData: false, displayPage: false, reputation: "" };_this.loadAccount = _this.loadAccount.bind(_this);_this.postData = _this.postData.bind(_this); // this.res = React.createRef();
-    return _this;}_createClass(ReputationChecker, [{ key: "render", value: function render()
+    };_this.state = { input: "", url: "", fetchingData: false, displayPage: false, reputation: "" };_this.loadAccount = _this.loadAccount.bind(_this);_this.postData = _this.postData.bind(_this);return _this;}_createClass(ReputationChecker, [{ key: "render", value: function render()
+
     {var _this2 = this;
       return (
         React.createElement("div", { className: "container" },
@@ -85,10 +92,27 @@ var _createClass = function () {function defineProperties(target, props) {for (v
             this.state.fetchingData ?
             React.createElement("div", { className: "text-center py-4" }, "Fetching data...") :
             this.state.displayPage ?
-            React.createElement("div", { className: "d-flex flex-column justify-content-center" },
-
+            React.createElement("div", { className: "d-flex flex-column justify-content-center text-center" },
+              React.createElement("h5", { className: "h5" }, "The webpage you asked"),
               React.createElement("div", {
                 dangerouslySetInnerHTML: { __html: this.state.response },
+                style: {
+                  width: "95%",
+                  height: 300,
+                  marginLeft: "2.5%",
+                  overflowY: "scroll",
+                  backgroundColor: "white" },
+
+                className: "my-4" })) :
+
+
+            null, " ",
+            this.state.reputation ?
+            React.createElement("div", { className: "d-flex flex-column justify-content-center text-center" },
+              React.createElement("h5", { className: "my-4 h5" }, "Your reputation"),
+
+              React.createElement("div", {
+                dangerouslySetInnerHTML: { __html: this.state.reputation },
                 style: {
                   width: "95%",
                   height: 300,
@@ -97,7 +121,6 @@ var _createClass = function () {function defineProperties(target, props) {for (v
                   backgroundColor: "white" } }),
 
 
-              React.createElement("div", { className: "text-center py-4" }, this.state.reputation),
               React.createElement("button", {
                   className: "btn btn-success my-4 mx-auto w-25",
                   onClick: function onClick(e) {return _this2.postData(e);} }, "I confirm this is my account")) :
