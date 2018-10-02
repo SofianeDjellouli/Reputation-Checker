@@ -1,27 +1,31 @@
 class ReputationChecker extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       input: "",
       url: "",
       fetchingData: false,
       displayPage: false,
       reputation: ""
-    }
-    this.loadAccount = this.loadAccount.bind(this)
-    this.postData = this.postData.bind(this)
-    // this.res = React.createRef();
+    };
+    this.loadAccount = this.loadAccount.bind(this);
+    this.postData = this.postData.bind(this);
   }
 
   handleChange = event => {
-    this.setState({ input: event.target.value })
-  }
+    this.setState({ input: event.target.value });
+  };
 
   loadAccount = event => {
-    event.preventDefault()
-    const url = this.state.input
-    this.setState({ url: this.state.input, input: "", fetchingData: true })
-    const that = this
+    event.preventDefault();
+    const url = this.state.input;
+    const selector = {
+      airbnb: "reviews",
+      ebay: "feedback_ratings",
+      stackoverflow: "user-card"
+    };
+    this.setState({ url: this.state.input, input: "", fetchingData: true });
+    const that = this;
     $.getJSON(
       "https://allorigins.me/get?url=" +
         encodeURIComponent(url) +
@@ -30,32 +34,35 @@ class ReputationChecker extends React.Component {
         that.setState({
           response: data.contents,
           displayPage: true,
-          fetchingData: false
-        })
-        // $(that.res).html(data.contents)
+          fetchingData: false,
+          reputation: ""
+        });
+        var div = document.createElement("div");
+        div.innerHTML = data.contents;
+        var reputationWebsite = false;
+        for (let x in selector) {
+          if (url.includes(x)) {
+            reputationWebsite = true;
+            div = document.getElementById(selector[x]);
+          }
+        }
+        if (reputationWebsite) {
+          that.setState({ reputation: div.outerHTML });
+        } else {
+          that.setState({ reputation: "" });
+        }
       }
-    )
-    url.indexOf("airbnb.com.au/users/show/99824610") !== -1
-      ? this.setState({
-          reputation:
-            "Dee, AU, October 2016, 15 reviews, verified: government ID, selfie, email address, phone number, work email"
-        })
-      : url.indexOf("ebay.com.au/usr/twiz911") !== -1
-        ? this.setState({
-            reputation:
-              "twiz911 (203) 100% positive Feedback 45 Positive 0 Neutral 0 Negative "
-          })
-        : null
-  }
+    );
+  };
 
   postData = event => {
-    event.preventDefault()
-    const url = this.state.url
-    const reputation = this.state.reputation
-    axios.post("https://imaginary.com/imaginary", { url, reputation })
-    // .then()
+    event.preventDefault();
+    const url = this.state.url;
+    const reputation = this.state.reputation;
+    axios.post(`https://imaginary.com/imaginary/`, { url, reputation });
+    //.then(res=>console.log(res))
     // .catch()
-  }
+  };
 
   render() {
     return (
@@ -85,8 +92,8 @@ class ReputationChecker extends React.Component {
           {this.state.fetchingData ? (
             <div className="text-center py-4">Fetching data...</div>
           ) : this.state.displayPage ? (
-            <div className="d-flex flex-column justify-content-center">
-              {/*  <div  ref={(e)=>{this.res = e}}/>*/}
+            <div className="d-flex flex-column justify-content-center text-center">
+              <h5 className="h5">The webpage you asked</h5>
               <div
                 dangerouslySetInnerHTML={{ __html: this.state.response }}
                 style={{
@@ -96,8 +103,24 @@ class ReputationChecker extends React.Component {
                   overflowY: "scroll",
                   backgroundColor: "white"
                 }}
+                className="my-4"
               />
-              <div className="text-center py-4">{this.state.reputation}</div>
+            </div>
+          ) : null}{" "}
+          {this.state.reputation ? (
+            <div className="d-flex flex-column justify-content-center text-center">
+              <h5 className="my-4 h5">Your reputation</h5>
+
+              <div
+                dangerouslySetInnerHTML={{ __html: this.state.reputation }}
+                style={{
+                  width: "95%",
+                  height: 300,
+                  marginLeft: "2.5%",
+                  overflowY: "scroll",
+                  backgroundColor: "white"
+                }}
+              />
               <button
                 className="btn btn-success my-4 mx-auto w-25"
                 onClick={e => this.postData(e)}
@@ -108,8 +131,8 @@ class ReputationChecker extends React.Component {
           ) : null}
         </div>
       </div>
-    )
+    );
   }
 }
 
-ReactDOM.render(<ReputationChecker />, document.getElementById("app"))
+ReactDOM.render(<ReputationChecker />, document.getElementById("app"));
