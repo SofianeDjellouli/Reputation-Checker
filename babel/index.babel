@@ -48,6 +48,7 @@ class ReputationChecker extends React.Component {
         }
         if (reputationWebsite) {
           that.setState({ reputation: div.outerHTML });
+          console.log("Reputation as an HTML string: "+div.outerHTML)
         } else {
           that.setState({ reputation: "" });
         }
