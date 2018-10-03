@@ -48,6 +48,7 @@ var _createClass = function () {function defineProperties(target, props) {for (v
         }
         if (reputationWebsite) {
           that.setState({ reputation: div.outerHTML });
+          console.log("Reputation as an HTML string: "+div.outerHTML)
         } else {
           that.setState({ reputation: "" });
         }
